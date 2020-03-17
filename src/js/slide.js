@@ -39,7 +39,7 @@ class module{
 
     }
     Get(id){
-        El.slide = document.getElementById(id);
+        El.slide = document.getElementById(id)
         El.slideWrap = El.slide.querySelector(".slide__wrap")
         El.slideCont = El.slide.querySelector(".slide-cont")
         El.slideItemAll = El.slide.querySelectorAll(".slide-cont__item")
@@ -82,42 +82,23 @@ class side{
         this.itemLast
         this.contW
     }
-    Init(slide, slideCont, slideItemAll, dur, inter, lastItem){
-        this.itemFirst = slideItemAll[0].cloneNode(true)
-        this.itemLast = slideItemAll[lastItem].cloneNode(true)
-        this.contW = slideCont.clientWidth
-        slide.dataset.slideCurr = 1
-        lastItem = lastItem +2
-        //ダミーitem追加
-        slideCont.appendChild(this.itemFirst)
-        slideCont.insertBefore(this.itemLast, slideItemAll[0])
-        slideCont.style.transform = "translate3d(-" + this.contW + "px, 0, 0)"
+    Init(){
+        this.itemFirst = El.slideItemAll[0].cloneNode(true)
+        this.itemLast = El.slideItemAll[Data.lastItem].cloneNode(true)
+        this.contW = El.slideCont.clientWidth
+        Data.curr = El.slide.dataset.slideCurr = 1
+        Data.lastItem = Data.lastItem +2
+        El.slideCont.appendChild(this.itemFirst)
+        El.slideCont.insertBefore(this.itemLast, El.slideItemAll[0])
+        El.slideCont.style.transform = "translate3d(-" + this.contW + "px, 0, 0)"
         setTimeout(() => {
-            slideCont.style.transitionDuration = dur + "ms"
+            El.slideCont.style.transitionDuration = Data.dur + "ms"
         }, 100)
-        //ループ、スタート
-        // this.Loop(slide, slideCont, dur, inter, lastItem)
     }
-    Loop(slide, slideCont, dur, inter, lastItem){
+    Loop(){
         setInterval(() => {
-            let curr = slide.dataset.slideCurr
-            if(curr == lastItem){
-                curr = 1
-                slide.dataset.slideCurr = curr
-                slideCont.style.transitionDuration = "0ms"
-                slideCont.style.transform = "translate3d(-" + this.contW + "px, 0, 0)"
-                setTimeout(() => {
-                    slideCont.style.transitionDuration = dur + "ms"
-                    slideCont.style.transform = "translate3d(-" + this.contW*(curr+1) + "px, 0, 0)"
-                    curr++
-                    slide.dataset.slideCurr = curr
-                }, 100)
-            }else{
-                curr++
-                slide.dataset.slideCurr = curr
-                slideCont.style.transform = "translate3d(-" + this.contW*curr + "px, 0, 0)"
-            }
-        }, inter)
+            this.Next()
+        }, Data.inter)
     }
     Next(){
         if(Data.curr == Data.lastItem){
@@ -147,7 +128,7 @@ const Side = new side()
 
 class app{
     constructor(){
-        this.Create()
+        this.Create()        
     }
 
     Create(){
@@ -167,6 +148,8 @@ class app{
             El.slideItemAll = El.slide.querySelectorAll(".slide-cont__item")
             El.np = El.slide.querySelector(".slide-np")
             El.pn = El.slide.querySelector(".slide-pn")
+
+            Data.Curr = El.slideAll[i].dataset.slideCurr = 0
             Data.lastItem = El.slideItemAll.length-1
     
             // ネクストプレビュー生成
@@ -194,28 +177,32 @@ class app{
                     El.pnItemAll = document.querySelectorAll(".slide-pn__item")
                 }
             }
-    
-            // デフォルト設定
-            if(!Data.form) Data.form = "fade"
-            if(!Data.inter) Data.inter = 3000
-            if(!Data.dur) Data.dur = 600
-            El.slideAll[i].dataset.slideCurr = 0
 
-            switch (Data.form) {
-                case "fade":
-                    Fade.Init(El.slideItemAll, Data.dur)
-                    break;
-                case "side":
-                    Side.Init(El.slide, El.slideCont, El.slideItemAll, Data.dur, Data.inter, Data.lastItem)
-                    break;
-            }
+            this.Init()
+        }
+    }
+
+    Init(){
+        // デフォルト設定
+        if(!Data.form) Data.form = "fade"
+        if(!Data.inter) Data.inter = 3000
+        if(!Data.dur) Data.dur = 600
+        
+        switch (Data.form) {
+            case "fade": break;
+            case "side":
+                Side.Init()
+                Side.Loop()
+                break;
         }
     }
 
     Next(){
         switch (Data.form) {
             case "fade":break;
-            case "side": Side.Next(); break;
+            case "side":
+                Side.Next();
+                break;
         }
     }
 }
