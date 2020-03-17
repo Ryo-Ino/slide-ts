@@ -43,7 +43,7 @@ module.exports = {
         open: true,                      
         inline: false
     },
-    entry: Dir.src+'/app.ts',
+    entry: Dir.src+'/app.js',
     output: {
         path: Dir.public,
         filename: Root+'js/script.bundle.js'
