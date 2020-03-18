@@ -8,9 +8,13 @@
         height: 100%;
     }
     &-cont{
+        display: flex;
         position: relative;
         margin: 0 auto;
         &__item{
+            flex-shrink: 0;
+            width: 100%;
+            height: auto;
             img{
                 display: block;
                 width: 100%;
@@ -92,20 +96,6 @@
                 opacity: 1;
                 z-index: 1;
             }
-        }
-    }
-
-    &[data-slide-form="side"]{
-        .slide__wrap{
-
-        }
-        .slide-cont{
-           display: flex;
-        }
-        .slide-cont__item{
-            flex-shrink: 0;
-            width: 100%;
-            height: auto;
         }
     }
 }

@@ -76,6 +76,8 @@ class el{
                     this.dom.pnItemAll = document.querySelectorAll(".slide-pn__item")
                 }
             }
+
+            console.log(this.dom.slide)
         }
     }
 } new el()
