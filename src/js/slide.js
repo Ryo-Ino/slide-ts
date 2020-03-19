@@ -23,10 +23,10 @@ class El{
         this.data = {
             id: "",
             form: "",
-            inter: 3000,
+            inter: undefined,
             dur: 600,
             curr: 0,
-            lastItem: 0
+            lastItem: 0,
         }
     }
 }
@@ -43,6 +43,7 @@ class Base extends El{
         super()
         
         this.dom.slideAll = BaseSlideAll
+
         if(this.dom.slideAll.dataset.slideInter !== undefined)
             this.data.inter = this.dom.slideAll.dataset.slideInter
         if(this.dom.slideAll.dataset.slideDur !== undefined)
@@ -51,26 +52,42 @@ class Base extends El{
         this.Init()
     }
     Init(){
+        this.data.curr = 1
         this.dom.slideCont = this.dom.slideAll.querySelector(".slide-cont")
         this.dom.slideItemAll = this.dom.slideAll.querySelectorAll(".slide-cont__item")
         this.data.lastItem = this.dom.slideItemAll.length-1
         this.itemFirst = this.dom.slideItemAll[0].cloneNode(true)
         this.itemLast = this.dom.slideItemAll[this.data.lastItem].cloneNode(true)
         this.contW = this.dom.slideCont.clientWidth
-        this.dom.slideAll.dataset.slideCurr = 1
         this.data.lastItem = this.data.lastItem+2
         this.dom.slideCont.appendChild(this.itemFirst)
         this.dom.slideCont.insertBefore(this.itemLast, this.dom.slideItemAll[0])
         this.dom.slideCont.style.transform = "translate3d(-" + this.contW + "px, 0, 0)"
         setTimeout(() => {
-            this.dom.slideCont.style.transitionDuration = this.data.dur + "ms"
-        }, 100)
+            this.dom.slideCont.style.transitionDuration = this.data.dur + "ms" 
+        }, 100);
+        if(this.data.inter)
+            this.Inter()
     }
     Inter(){
-
+        setInterval(() => {
+            this.Next()
+        }, this.data.inter)
     }
     Next(){
-
+        if(this.data.curr == this.data.lastItem){
+            this.data.curr = 2
+            this.dom.slideCont.style.transitionDuration = "0ms"
+            this.dom.slideCont.style.transform = "translate3d(-" + this.contW + "px, 0, 0)"
+            setTimeout(() => {
+                this.dom.slideCont.style.transitionDuration = this.data.dur + "ms" 
+                this.dom.slideCont.style.transform = "translate3d(-" + this.contW*this.data.curr + "px, 0, 0)"
+            }, 100);
+        }else{
+            this.data.curr++            
+            this.dom.slideCont.style.transform = "translate3d(-" + this.contW*this.data.curr + "px, 0, 0)"
+        }
+        console.log(this.data.curr)
     }
 }
 
