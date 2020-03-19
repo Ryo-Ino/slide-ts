@@ -61,7 +61,7 @@ class Base extends El{
         this.contW = this.dom.slideCont.clientWidth
         this.data.lastItem = this.data.lastItem+2
         this.dom.slideCont.appendChild(this.itemFirst)
-        this.dom.slideCont.insertBefore(this.itemLast, this.dom.slideItemAll[0])
+        this.dom.slideCont.insertBefore(this.itemLast, this.dom.slideItemAll[0]) 
         this.dom.slideCont.style.transform = "translate3d(-" + this.contW + "px, 0, 0)"
         setTimeout(() => {
             this.dom.slideCont.style.transitionDuration = this.data.dur + "ms" 
@@ -76,18 +76,20 @@ class Base extends El{
     }
     Next(){
         if(this.data.curr == this.data.lastItem){
-            this.data.curr = 2
-            this.dom.slideCont.style.transitionDuration = "0ms"
-            this.dom.slideCont.style.transform = "translate3d(-" + this.contW + "px, 0, 0)"
-            setTimeout(() => {
-                this.dom.slideCont.style.transitionDuration = this.data.dur + "ms" 
+            new Promise((resolve) => {
+                this.data.curr = 1
+                this.dom.slideCont.style.transitionDuration = "0ms"
+                this.dom.slideCont.style.transform = "translate3d(-" + this.contW + "px, 0, 0)"
+                setTimeout(resolve, 20);            
+            }).then(() => {
+                this.data.curr++
+                this.dom.slideCont.style.transitionDuration = this.data.dur + "ms"
                 this.dom.slideCont.style.transform = "translate3d(-" + this.contW*this.data.curr + "px, 0, 0)"
-            }, 100);
+            });
         }else{
-            this.data.curr++            
+            this.data.curr++
             this.dom.slideCont.style.transform = "translate3d(-" + this.contW*this.data.curr + "px, 0, 0)"
         }
-        console.log(this.data.curr)
     }
 }
 
