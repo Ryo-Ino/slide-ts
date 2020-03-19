@@ -44,11 +44,14 @@ class Base extends El{
         
         this.dom.slideAll = BaseSlideAll
 
-        if(this.dom.slideAll.dataset.slideInter !== undefined)
+        if(this.dom.slideAll.dataset.slideInter !== undefined){}
             this.data.inter = this.dom.slideAll.dataset.slideInter
         if(this.dom.slideAll.dataset.slideDur !== undefined)
             this.data.dur = this.dom.slideAll.dataset.slideDur
-
+        if(Number(this.data.inter) <= Number(this.data.dur))
+            this.data.inter = Number(this.data.dur)+100
+            this.dom.slideAll.dataset.slideInter = this.data.inter
+        
         this.Init()
     }
     Init(){
@@ -61,34 +64,47 @@ class Base extends El{
         this.contW = this.dom.slideCont.clientWidth
         this.data.lastItem = this.data.lastItem+2
         this.dom.slideCont.appendChild(this.itemFirst)
-        this.dom.slideCont.insertBefore(this.itemLast, this.dom.slideItemAll[0]) 
+        this.dom.slideCont.insertBefore(this.itemLast, this.dom.slideItemAll[0])
         this.dom.slideCont.style.transform = "translate3d(-" + this.contW + "px, 0, 0)"
         setTimeout(() => {
-            this.dom.slideCont.style.transitionDuration = this.data.dur + "ms" 
+            this.dom.slideCont.style.transitionDuration = this.data.dur + "ms"
         }, 100);
-        if(this.data.inter)
-            this.Inter()
+        // if(this.data.inter)
+        //     this.Inter()
     }
     Inter(){
         setInterval(() => {
-            this.Next()
+            this.Pre()
         }, this.data.inter)
     }
     Next(){
         if(this.data.curr == this.data.lastItem){
-            new Promise((resolve) => {
-                this.data.curr = 1
-                this.dom.slideCont.style.transitionDuration = "0ms"
-                this.dom.slideCont.style.transform = "translate3d(-" + this.contW + "px, 0, 0)"
-                setTimeout(resolve, 20);            
-            }).then(() => {
+            this.data.curr = 1
+            this.dom.slideCont.style.transitionDuration = "0ms"
+            this.dom.slideCont.style.transform = "translate3d(-" + this.contW + "px, 0, 0)"
+            setTimeout(() => {
                 this.data.curr++
                 this.dom.slideCont.style.transitionDuration = this.data.dur + "ms"
                 this.dom.slideCont.style.transform = "translate3d(-" + this.contW*this.data.curr + "px, 0, 0)"
-            });
+            }, 100);
         }else{
             this.data.curr++
             this.dom.slideCont.style.transform = "translate3d(-" + this.contW*this.data.curr + "px, 0, 0)"
+        }
+    }
+    Pre(){
+        if(this.data.curr == 1){
+            this.data.curr = this.data.lastItem
+            this.dom.slideCont.style.transitionDuration = "0ms"
+            this.dom.slideCont.style.transform = "translate3d(" + this.contW*this.data.lastItem-2 + "px, 0, 0)"
+            setTimeout(() => {
+                this.data.curr--
+                this.dom.slideCont.style.transitionDuration = this.data.dur + "ms"
+                this.dom.slideCont.style.transform = "translate3d(" + this.contW*this.data.curr + "px, 0, 0)"
+            }, 100);
+        }else{
+            this.data.curr--
+            this.dom.slideCont.style.transform = "translate3d(" + this.contW*this.data.curr + "px, 0, 0)"
         }
     }
 }
