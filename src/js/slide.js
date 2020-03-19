@@ -1,4 +1,4 @@
-class el{
+class El{
     constructor(){
         this.dom = {
             slide: null,
@@ -21,35 +21,81 @@ class el{
             pnItemAll: [],
         }
         this.data = {
-            id: 0,
+            id: "",
             form: "",
-            inter: 0,
-            dur: 0,
+            inter: 3000,
+            dur: 600,
             curr: 0,
-            lastItem: 0,
+            lastItem: 0
         }
+    }
+}
+
+class Module extends El {
+    constructor(){
+        super()
+    }
+}
+const mod = new Module()
+
+class Base extends El{
+    constructor(BaseSlideAll){
+        super()
+        
+        this.dom.slideAll = BaseSlideAll
+        if(this.dom.slideAll.dataset.slideInter !== undefined)
+            this.data.inter = this.dom.slideAll.dataset.slideInter
+        if(this.dom.slideAll.dataset.slideDur !== undefined)
+            this.data.dur = this.dom.slideAll.dataset.slideDur
+
+        this.Init()
+    }
+    Init(){
+        this.dom.slideCont = this.dom.slideAll.querySelector(".slide-cont")
+        this.dom.slideItemAll = this.dom.slideAll.querySelectorAll(".slide-cont__item")
+        this.data.lastItem = this.dom.slideItemAll.length-1
+        this.itemFirst = this.dom.slideItemAll[0].cloneNode(true)
+        this.itemLast = this.dom.slideItemAll[this.data.lastItem].cloneNode(true)
+        this.contW = this.dom.slideCont.clientWidth
+        this.dom.slideAll.dataset.slideCurr = 1
+        this.data.lastItem = this.data.lastItem+2
+        this.dom.slideCont.appendChild(this.itemFirst)
+        this.dom.slideCont.insertBefore(this.itemLast, this.dom.slideItemAll[0])
+        this.dom.slideCont.style.transform = "translate3d(-" + this.contW + "px, 0, 0)"
+        setTimeout(() => {
+            this.dom.slideCont.style.transitionDuration = this.data.dur + "ms"
+        }, 100)
+    }
+    Inter(){
+
+    }
+    Next(){
+
+    }
+}
+
+class Fade extends El{
+    constructor(FadeSlideAll){
+        super()
+        this.dom.slideAll = FadeSlideAll
+    }
+}
+
+class App extends El{
+    constructor(){
+        super()
         this.Create()
     }
     Create(){
         this.dom.slideAll = document.querySelectorAll(".slide")
     
         for (let i = 0; i < this.dom.slideAll.length; i++) {
-            //　データ取得
             this.data.id = this.dom.slideAll[i].id
-            this.data.form = this.dom.slideAll[i].dataset.slideForm
-            this.data.inter = Number(this.dom.slideAll[i].dataset.slideInter)
-            this.data.dur = Number(this.dom.slideAll[i].dataset.slideDur)
-    
-            // エレメント取得
             this.dom.slide = document.getElementById(this.data.id);
-            this.dom.slideWrap = this.dom.slide.querySelector(".slide__wrap")
-            this.dom.slideCont = this.dom.slide.querySelector(".slide-cont")
             this.dom.slideItemAll = this.dom.slide.querySelectorAll(".slide-cont__item")
             this.dom.np = this.dom.slide.querySelector(".slide-np")
             this.dom.pn = this.dom.slide.querySelector(".slide-pn")
-
-            this.data.Curr = this.dom.slideAll[i].dataset.slideCurr = 0
-            this.data.lastItem = this.dom.slideItemAll.length-1
+            this.data.form = this.dom.slide.dataset.slideForm
     
             // ネクストプレビュー生成
             if(this.dom.np){
@@ -77,7 +123,11 @@ class el{
                 }
             }
 
-            console.log(this.dom.slide)
+            switch (this.data.form) {
+                case undefined: new Base(this.dom.slide); break;
+                case "fade": new Fade(this.dom.slide); break;
+            }
         }
     }
-} new el()
+}
+const app = new App()
