@@ -23,10 +23,14 @@ class El{
         this.data = {
             id: "",
             form: "",
-            inter: undefined,
             dur: 600,
             curr: 0,
             lastItem: 0,
+            inter: undefined,
+            loop: undefined,
+        }
+        this.is = {
+            StopInter: "is-StopInter" 
         }
     }
 }
@@ -34,6 +38,23 @@ class El{
 class Module extends El {
     constructor(){
         super()
+    }
+    El(id){
+        this.dom.slide = document.getElementById(id);
+        this.dom.slideWrap = this.dom.slide.querySelector(".slide-wrap")
+        this.dom.slideCont = this.dom.slide.querySelector(".slide-cont")
+        this.dom.slideItemAll = this.dom.slide.querySelector(".slide-cont__item")
+        this.data.inter = this.dom.slide.dataset.slideInter
+    }
+    Control(id){
+        clearTimeout(this.stopTimer);
+        this.El(id)
+        if(this.data.inter !== undefined){
+            this.dom.slide.classList.add(this.is.StopInter)
+            this.stopTimer = setTimeout(() => {
+                this.dom.slide.classList.remove(this.is.StopInter)
+            }, this.data.inter/2)
+        }
     }
 }
 const mod = new Module()
@@ -44,9 +65,11 @@ class Base extends El{
         
         this.dom.slideAll = BaseSlideAll
 
-        if(this.dom.slideAll.dataset.slideInter !== undefined){}
+        if(this.dom.slideAll.dataset.slideInter !== this.data.inter)
             this.data.inter = this.dom.slideAll.dataset.slideInter
-        if(this.dom.slideAll.dataset.slideDur !== undefined)
+        if(this.dom.slideAll.dataset.slideLoop !== this.data.loop)
+            this.data.loop = Boolean(this.dom.slideAll.dataset.slideLoop)
+        if(this.dom.slideAll.dataset.slideDur !== this.data.dur)
             this.data.dur = this.dom.slideAll.dataset.slideDur
         if(Number(this.data.inter) <= Number(this.data.dur))
             this.data.inter = Number(this.data.dur)+100
@@ -56,6 +79,7 @@ class Base extends El{
     }
     Init(){
         this.data.curr = 1
+        this.dom.slideAll
         this.dom.slideCont = this.dom.slideAll.querySelector(".slide-cont")
         this.dom.slideItemAll = this.dom.slideAll.querySelectorAll(".slide-cont__item")
         this.data.lastItem = this.dom.slideItemAll.length-1
@@ -69,13 +93,34 @@ class Base extends El{
         setTimeout(() => {
             this.dom.slideCont.style.transitionDuration = this.data.dur + "ms"
         }, 100);
-        // if(this.data.inter)
-        //     this.Inter()
+        if(this.data.inter)
+            this.Inter()
+        if(this.data.loop)
+            this.Loop()
     }
     Inter(){
         setInterval(() => {
-            this.Pre()
+            let flag = this.dom.slideAll.classList.contains(this.is.StopInter)
+            if(!flag){
+                this.Next()
+            }
         }, this.data.inter)
+    }
+    Loop(){
+        const w = this.contW*this.data.lastItem-1
+        let num = this.contW
+        setTimeout(() => {
+            this.dom.slideCont.style.transitionDuration = "0ms"
+        }, 100);
+        const start = () => {
+            this.dom.slideCont.style.transform = "translate3d(-" + num + "px, 0, 0)"
+            num = num+1
+            if(w <= num)
+                num = this.contW
+                this.dom.slideCont.style.transform = "translate3d(-" + num + "px, 0, 0)"
+            window.requestAnimationFrame(start)
+        }
+        start()
     }
     Next(){
         if(this.data.curr == this.data.lastItem){
@@ -93,18 +138,18 @@ class Base extends El{
         }
     }
     Pre(){
-        if(this.data.curr == 1){
-            this.data.curr = this.data.lastItem
+        if(this.data.curr == 0){
+            this.data.curr = this.data.lastItem-1
             this.dom.slideCont.style.transitionDuration = "0ms"
-            this.dom.slideCont.style.transform = "translate3d(" + this.contW*this.data.lastItem-2 + "px, 0, 0)"
+            this.dom.slideCont.style.transform = "translate3d(-" + this.contW*this.data.curr + "px, 0, 0)"
             setTimeout(() => {
                 this.data.curr--
                 this.dom.slideCont.style.transitionDuration = this.data.dur + "ms"
-                this.dom.slideCont.style.transform = "translate3d(" + this.contW*this.data.curr + "px, 0, 0)"
+                this.dom.slideCont.style.transform = "translate3d(-" + this.contW*this.data.curr + "px, 0, 0)"
             }, 100);
         }else{
             this.data.curr--
-            this.dom.slideCont.style.transform = "translate3d(" + this.contW*this.data.curr + "px, 0, 0)"
+            this.dom.slideCont.style.transform = "translate3d(-" + this.contW*this.data.curr + "px, 0, 0)"
         }
     }
 }
@@ -120,6 +165,7 @@ class App extends El{
     constructor(){
         super()
         this.Create()
+        this.Next()
     }
     Create(){
         this.dom.slideAll = document.querySelectorAll(".slide")
@@ -140,6 +186,7 @@ class App extends El{
                 this.dom.pre.setAttribute("class", "slide-np__item slide-np__item--pre")
                 this.dom.next.setAttribute("data-slide-id", this.data.id)
                 this.dom.pre.setAttribute("data-slide-id", this.data.id)
+
                 this.dom.np.appendChild(this.dom.next)
                 this.dom.np.appendChild(this.dom.pre)
                 this.dom.nextAll = document.querySelectorAll(".slide-np__item--next")
@@ -159,10 +206,20 @@ class App extends El{
             }
 
             switch (this.data.form) {
-                case undefined: new Base(this.dom.slide); break;
-                case "fade": new Fade(this.dom.slide); break;
+                case undefined: this.Base = new Base(this.dom.slide); break;
+                case "fade": this.Fade = new Fade(this.dom.slide); break;
             }
         }
     }
+    Next(){
+        this.dom.nextAll.forEach(el => {
+            el.addEventListener("click", (e) => {
+                switch (this.data.form) {
+                    case undefined: this.Base.Next(e.target.dataset.slideId); break;
+                }
+            })
+        })
+    }
+
 }
 const app = new App()
