@@ -1,6 +1,10 @@
-class El{
+class node{
     constructor(){
-        this.dom = {
+        this.form = {
+            base: undefined,
+            fade: 'fade'
+        }
+        this.el = {
             slide: null,
             slideAll: [],
             slideWrap: null,
@@ -21,205 +25,121 @@ class El{
             pnItemAll: [],
         }
         this.data = {
-            id: "",
-            form: "",
-            dur: 600,
-            curr: 0,
-            lastItem: 0,
+            id: '',
+            form: '',
             inter: undefined,
             loop: undefined,
+            dur: 600,
+            lastItem: 0,
+            curr: 0,
         }
         this.is = {
-            StopInter: "is-StopInter" 
+            StopInter: 'is-StopInter'
         }
+        this.create()
     }
-}
-
-class Module extends El {
-    constructor(){
-        super()
-    }
-    El(id){
-        this.dom.slide = document.getElementById(id);
-        this.dom.slideWrap = this.dom.slide.querySelector(".slide-wrap")
-        this.dom.slideCont = this.dom.slide.querySelector(".slide-cont")
-        this.dom.slideItemAll = this.dom.slide.querySelector(".slide-cont__item")
-        this.data.inter = this.dom.slide.dataset.slideInter
-    }
-    Control(id){
-        clearTimeout(this.stopTimer);
-        this.El(id)
-        if(this.data.inter !== undefined){
-            this.dom.slide.classList.add(this.is.StopInter)
-            this.stopTimer = setTimeout(() => {
-                this.dom.slide.classList.remove(this.is.StopInter)
-            }, this.data.inter/2)
-        }
-    }
-}
-const mod = new Module()
-
-class Base extends El{
-    constructor(BaseSlideAll){
-        super()
-        
-        this.dom.slideAll = BaseSlideAll
-
-        if(this.dom.slideAll.dataset.slideInter !== this.data.inter)
-            this.data.inter = this.dom.slideAll.dataset.slideInter
-        if(this.dom.slideAll.dataset.slideLoop !== this.data.loop)
-            this.data.loop = Boolean(this.dom.slideAll.dataset.slideLoop)
-        if(this.dom.slideAll.dataset.slideDur !== this.data.dur)
-            this.data.dur = this.dom.slideAll.dataset.slideDur
-        if(Number(this.data.inter) <= Number(this.data.dur))
-            this.data.inter = Number(this.data.dur)+100
-            this.dom.slideAll.dataset.slideInter = this.data.inter
-        
-        this.Init()
-    }
-    Init(){
-        this.data.curr = 1
-        this.dom.slideAll
-        this.dom.slideCont = this.dom.slideAll.querySelector(".slide-cont")
-        this.dom.slideItemAll = this.dom.slideAll.querySelectorAll(".slide-cont__item")
-        this.data.lastItem = this.dom.slideItemAll.length-1
-        this.itemFirst = this.dom.slideItemAll[0].cloneNode(true)
-        this.itemLast = this.dom.slideItemAll[this.data.lastItem].cloneNode(true)
-        this.contW = this.dom.slideCont.clientWidth
-        this.data.lastItem = this.data.lastItem+2
-        this.dom.slideCont.appendChild(this.itemFirst)
-        this.dom.slideCont.insertBefore(this.itemLast, this.dom.slideItemAll[0])
-        this.dom.slideCont.style.transform = "translate3d(-" + this.contW + "px, 0, 0)"
-        setTimeout(() => {
-            this.dom.slideCont.style.transitionDuration = this.data.dur + "ms"
-        }, 100);
-        if(this.data.inter)
-            this.Inter()
-        if(this.data.loop)
-            this.Loop()
-    }
-    Inter(){
-        setInterval(() => {
-            let flag = this.dom.slideAll.classList.contains(this.is.StopInter)
-            if(!flag){
-                this.Next()
-            }
-        }, this.data.inter)
-    }
-    Loop(){
-        const w = this.contW*this.data.lastItem-1
-        let num = this.contW
-        setTimeout(() => {
-            this.dom.slideCont.style.transitionDuration = "0ms"
-        }, 100);
-        const start = () => {
-            this.dom.slideCont.style.transform = "translate3d(-" + num + "px, 0, 0)"
-            num = num+1
-            if(w <= num)
-                num = this.contW
-                this.dom.slideCont.style.transform = "translate3d(-" + num + "px, 0, 0)"
-            window.requestAnimationFrame(start)
-        }
-        start()
-    }
-    Next(){
-        if(this.data.curr == this.data.lastItem){
-            this.data.curr = 1
-            this.dom.slideCont.style.transitionDuration = "0ms"
-            this.dom.slideCont.style.transform = "translate3d(-" + this.contW + "px, 0, 0)"
-            setTimeout(() => {
-                this.data.curr++
-                this.dom.slideCont.style.transitionDuration = this.data.dur + "ms"
-                this.dom.slideCont.style.transform = "translate3d(-" + this.contW*this.data.curr + "px, 0, 0)"
-            }, 100);
-        }else{
-            this.data.curr++
-            this.dom.slideCont.style.transform = "translate3d(-" + this.contW*this.data.curr + "px, 0, 0)"
-        }
-    }
-    Pre(){
-        if(this.data.curr == 0){
-            this.data.curr = this.data.lastItem-1
-            this.dom.slideCont.style.transitionDuration = "0ms"
-            this.dom.slideCont.style.transform = "translate3d(-" + this.contW*this.data.curr + "px, 0, 0)"
-            setTimeout(() => {
-                this.data.curr--
-                this.dom.slideCont.style.transitionDuration = this.data.dur + "ms"
-                this.dom.slideCont.style.transform = "translate3d(-" + this.contW*this.data.curr + "px, 0, 0)"
-            }, 100);
-        }else{
-            this.data.curr--
-            this.dom.slideCont.style.transform = "translate3d(-" + this.contW*this.data.curr + "px, 0, 0)"
-        }
-    }
-}
-
-class Fade extends El{
-    constructor(FadeSlideAll){
-        super()
-        this.dom.slideAll = FadeSlideAll
-    }
-}
-
-class App extends El{
-    constructor(){
-        super()
-        this.Create()
-        this.Next()
-    }
-    Create(){
-        this.dom.slideAll = document.querySelectorAll(".slide")
+    create(){
+        this.el.slideAll = document.querySelectorAll('.slide')
     
-        for (let i = 0; i < this.dom.slideAll.length; i++) {
-            this.data.id = this.dom.slideAll[i].id
-            this.dom.slide = document.getElementById(this.data.id);
-            this.dom.slideItemAll = this.dom.slide.querySelectorAll(".slide-cont__item")
-            this.dom.np = this.dom.slide.querySelector(".slide-np")
-            this.dom.pn = this.dom.slide.querySelector(".slide-pn")
-            this.data.form = this.dom.slide.dataset.slideForm
-    
+        for (let i = 0; i < this.el.slideAll.length; i++) {
+            this.data.id = this.el.slideAll[i].id
+            this.el.slide = document.getElementById(this.data.id)
+            this.el.slideItemAll = this.el.slide.querySelectorAll('.slide-cont__item')
+            this.el.np = this.el.slide.querySelector('.slide-np')
+            this.el.pn = this.el.slide.querySelector('.slide-pn')
+            this.data.form = this.el.slide.dataset.slideForm
+            
             // ネクストプレビュー生成
-            if(this.dom.np){
-                this.dom.next = document.createElement("span")
-                this.dom.pre = document.createElement("span")
-                this.dom.next.setAttribute("class", "slide-np__item slide-np__item--next")
-                this.dom.pre.setAttribute("class", "slide-np__item slide-np__item--pre")
-                this.dom.next.setAttribute("data-slide-id", this.data.id)
-                this.dom.pre.setAttribute("data-slide-id", this.data.id)
+            if(this.el.np){
+                this.el.next = document.createElement('span')
+                this.el.pre = document.createElement('span')
+                this.el.next.setAttribute('class', 'slide-np__item slide-np__item--next')
+                this.el.pre.setAttribute('class', 'slide-np__item slide-np__item--pre')
+                this.el.next.setAttribute('data-slide-id', this.data.id)
+                this.el.pre.setAttribute('data-slide-id', this.data.id)
 
-                this.dom.np.appendChild(this.dom.next)
-                this.dom.np.appendChild(this.dom.pre)
-                this.dom.nextAll = document.querySelectorAll(".slide-np__item--next")
-                this.dom.preAll = document.querySelectorAll(".slide-np__item--pre")
+                this.el.np.appendChild(this.el.next)
+                this.el.np.appendChild(this.el.pre)
+                this.el.nextAll = document.querySelectorAll('.slide-np__item--next')
+                this.el.preAll = document.querySelectorAll('.slide-np__item--pre')
             }
     
             // ページネーション生成
-            if(this.dom.pn){
-                for (let i = 0; i < this.dom.slideItemAll.length; i++) {
-                    this.dom.pnItem = document.createElement("li")
-                    this.dom.pnItem.setAttribute("class", "slide-pn__item")
-                    this.dom.pnItem.setAttribute("data-slide-id", this.data.id)
-                    this.dom.pnItem.setAttribute("data-slide-index", String(i))
-                    this.dom.pn.appendChild(this.dom.pnItem)
-                    this.dom.pnItemAll = document.querySelectorAll(".slide-pn__item")
+            if(this.el.pn){
+                for (let i = 0; i < this.el.slideItemAll.length; i++) {
+                    this.el.pnItem = document.createElement('li')
+                    this.el.pnItem.setAttribute('class', 'slide-pn__item')
+                    this.el.pnItem.setAttribute('data-slide-id', this.data.id)
+                    this.el.pnItem.setAttribute('data-slide-index', String(i))
+                    this.el.pn.appendChild(this.el.pnItem)
+                    this.el.pnItemAll = document.querySelectorAll('.slide-pn__item')
                 }
-            }
-
-            switch (this.data.form) {
-                case undefined: this.Base = new Base(this.dom.slide); break;
-                case "fade": this.Fade = new Fade(this.dom.slide); break;
             }
         }
     }
-    Next(){
-        this.dom.nextAll.forEach(el => {
-            el.addEventListener("click", (e) => {
-                switch (this.data.form) {
-                    case undefined: this.Base.Next(e.target.dataset.slideId); break;
-                }
-            })
-        })
-    }
-
 }
-const app = new App()
+
+class feature extends node{
+    constructor(){
+        super()
+    }
+    getNode(id){
+        this.el.slide = document.getElementById(id)
+        this.el.slideWrap = this.el.slide.querySelector('.slide__wrap')
+        this.el.slideCont = this.el.slide.querySelector('.slide-cont')
+        this.el.slideItemAll = this.el.slide.querySelectorAll('.slide-cont__item')
+        this.data.inter = this.el.slide.dataset.slideInter
+        this.data.loop = this.el.slide.dataset.slideLoop
+        this.data.dur = this.el.slide.dataset.slideDur
+        this.data.lastItem = this.el.slideItemAll.length-1
+    }
+}
+
+class base extends feature{
+    constructor(){
+        super()
+        for (let i = 0; i < this.el.slideAll.length; i++) {
+            if(this.form.base === this.el.slideAll[i].dataset.slideForm){
+                this.getNode(this.el.slideAll[i].id)
+                this.itemFirst = this.el.slideItemAll[0].cloneNode(true)
+                this.itemLast = this.el.slideItemAll[this.data.lastItem].cloneNode(true)
+                this.contW = this.el.slideCont.clientWidth
+                this.el.slideCont.appendChild(this.itemFirst)
+                this.el.slideCont.insertBefore(this.itemLast, this.el.slideItemAll[0])
+                this.el.slideCont.style.transform = 'translate3d(-' + this.contW + 'px, 0, 0)'
+                this.data.curr = 1
+                this.data.lastItem = this.data.lastItem+2
+                this.el.slideCont.style.transitionDuration = this.data.dur + 'ms'
+                if(this.data.inter !== undefined)
+                    this.inter()
+                if(this.data.loop !== undefined)
+                    this.loop()
+            }
+        }
+    }
+    inter(){        
+        setInterval(() => {
+            
+        }, this.data.inter)
+    }
+    loop(){
+    }
+    next(){
+        if(this.data.curr == this.data.lastItem){
+            this.data.curr = 1
+            this.el.slideCont.style.transitionDuration = '0ms'
+            this.el.slideCont.style.transform = 'translate3d(-' + this.contW + 'px, 0, 0)'
+            setTimeout(() => {
+                this.data.curr++
+                this.el.slideCont.style.transitionDuration = this.data.dur + 'ms'
+                this.el.slideCont.style.transform = 'translate3d(-' + this.contW*this.data.curr + 'px, 0, 0)'
+            }, 100)
+        }else{
+            this.data.curr++
+            this.el.slideCont.style.transform = 'translate3d(-' + this.contW*this.data.curr + 'px, 0, 0)'
+        }
+    }
+    pre(){
+    }
+}
+new base()
