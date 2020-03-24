@@ -36,6 +36,73 @@ class node{
         this.is = {
             StopInter: 'is-StopInter'
         }
+    }
+}
+new node()
+
+class feature extends node{
+    constructor(){
+        super()
+    }
+    getNode(id){
+        this.el.slide = document.getElementById(id)
+        this.el.slideWrap = this.el.slide.querySelector('.slide__wrap')
+        this.el.slideCont = this.el.slide.querySelector('.slide-cont')
+        this.el.slideItemAll = this.el.slide.querySelectorAll('.slide-cont__item')
+        this.data.inter = this.el.slide.dataset.slideInter
+        this.data.loop = this.el.slide.dataset.slideLoop
+        this.data.dur = this.el.slide.dataset.slideDur
+        this.data.lastItem = this.el.slideItemAll.length-1
+    }
+}
+
+class base extends feature{
+    constructor(){
+        super()
+        for (let i = 0; i < this.el.slideAll.length; i++) {
+            if(this.form.base === this.el.slideAll[i].dataset.slideForm){
+                this.getNode(this.el.slideAll[i].id)
+                this.itemFirst = this.el.slideItemAll[0].cloneNode(true)
+                this.itemLast = this.el.slideItemAll[this.data.lastItem].cloneNode(true)
+                this.contW = this.el.slideCont.clientWidth
+                this.el.slideCont.appendChild(this.itemFirst)
+                this.el.slideCont.insertBefore(this.itemLast, this.el.slideItemAll[0])
+                this.el.slideCont.style.transform = 'translate3d(-' + this.contW + 'px, 0, 0)'
+                this.data.curr = 1
+                this.data.lastItem = this.data.lastItem+2
+                this.el.slideCont.style.transitionDuration = this.data.dur + 'ms'
+                if(this.data.inter !== undefined) this.inter()
+                if(this.data.loop !== undefined) this.loop()
+            }
+        }
+    }
+    inter(){
+        
+    }
+    loop(){
+    }
+    next(){
+        if(this.data.curr == this.data.lastItem){
+            this.data.curr = 1
+            this.el.slideCont.style.transitionDuration = '0ms'
+            this.el.slideCont.style.transform = 'translate3d(-' + this.contW + 'px, 0, 0)'
+            setTimeout(() => {
+                this.data.curr++
+                this.el.slideCont.style.transitionDuration = this.data.dur + 'ms'
+                this.el.slideCont.style.transform = 'translate3d(-' + this.contW*this.data.curr + 'px, 0, 0)'
+            }, 100)
+        }else{
+            this.data.curr++
+            this.el.slideCont.style.transform = 'translate3d(-' + this.contW*this.data.curr + 'px, 0, 0)'
+        }
+    }
+    pre(){
+    }
+}
+
+class app extends feature{
+    constructor(){
+        super()
         this.create()
     }
     create(){
@@ -75,71 +142,11 @@ class node{
                     this.el.pnItemAll = document.querySelectorAll('.slide-pn__item')
                 }
             }
-        }
-    }
-}
 
-class feature extends node{
-    constructor(){
-        super()
-    }
-    getNode(id){
-        this.el.slide = document.getElementById(id)
-        this.el.slideWrap = this.el.slide.querySelector('.slide__wrap')
-        this.el.slideCont = this.el.slide.querySelector('.slide-cont')
-        this.el.slideItemAll = this.el.slide.querySelectorAll('.slide-cont__item')
-        this.data.inter = this.el.slide.dataset.slideInter
-        this.data.loop = this.el.slide.dataset.slideLoop
-        this.data.dur = this.el.slide.dataset.slideDur
-        this.data.lastItem = this.el.slideItemAll.length-1
-    }
-}
-
-class base extends feature{
-    constructor(){
-        super()
-        for (let i = 0; i < this.el.slideAll.length; i++) {
-            if(this.form.base === this.el.slideAll[i].dataset.slideForm){
-                this.getNode(this.el.slideAll[i].id)
-                this.itemFirst = this.el.slideItemAll[0].cloneNode(true)
-                this.itemLast = this.el.slideItemAll[this.data.lastItem].cloneNode(true)
-                this.contW = this.el.slideCont.clientWidth
-                this.el.slideCont.appendChild(this.itemFirst)
-                this.el.slideCont.insertBefore(this.itemLast, this.el.slideItemAll[0])
-                this.el.slideCont.style.transform = 'translate3d(-' + this.contW + 'px, 0, 0)'
-                this.data.curr = 1
-                this.data.lastItem = this.data.lastItem+2
-                this.el.slideCont.style.transitionDuration = this.data.dur + 'ms'
-                if(this.data.inter !== undefined)
-                    this.inter()
-                if(this.data.loop !== undefined)
-                    this.loop()
+            switch (this.data.form) {
+                case this.form.base: new base(); break;
             }
         }
     }
-    inter(){        
-        setInterval(() => {
-            
-        }, this.data.inter)
-    }
-    loop(){
-    }
-    next(){
-        if(this.data.curr == this.data.lastItem){
-            this.data.curr = 1
-            this.el.slideCont.style.transitionDuration = '0ms'
-            this.el.slideCont.style.transform = 'translate3d(-' + this.contW + 'px, 0, 0)'
-            setTimeout(() => {
-                this.data.curr++
-                this.el.slideCont.style.transitionDuration = this.data.dur + 'ms'
-                this.el.slideCont.style.transform = 'translate3d(-' + this.contW*this.data.curr + 'px, 0, 0)'
-            }, 100)
-        }else{
-            this.data.curr++
-            this.el.slideCont.style.transform = 'translate3d(-' + this.contW*this.data.curr + 'px, 0, 0)'
-        }
-    }
-    pre(){
-    }
 }
-new base()
+new app()
