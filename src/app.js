@@ -8,4 +8,4 @@ import './scss/app';
 
 /* js
 ====================*/
-import './js/slide';
+import './js/show';
