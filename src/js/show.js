@@ -32,6 +32,10 @@ class node{
         this.is = {
             stop: 'is-stop',
         }
+        this.active = {
+            event: 'active-event',
+            auto: 'active-auto'
+        }
         this.form = {
             base: undefined,
             fade: 'fade'
@@ -54,14 +58,22 @@ class feature extends node {
         this.data.current = this.el.show.dataset.showCurrent
     }
     control(){
-        clearTimeout(this.stopTimer)
-        this.el.show.classList.add(this.is.stop)
-        this.stopTimer = setTimeout(() => {
-            this.stopEl = document.querySelectorAll('.' + this.is.stop)
-            this.stopEl.forEach(el => {
-                el.classList.remove(this.is.stop)
+        clearTimeout(this.timerEvent)
+        clearTimeout(this.timerAuto)
+        this.el.show.classList.add(this.active.event)
+        this.el.show.classList.add(this.active.auto)
+        this.timerEvent = setTimeout(() => {
+            const activeEl = document.querySelectorAll('.' + this.active.event)
+            activeEl.forEach(el => {
+                el.classList.remove(this.active.event)
             })
         }, this.data.speed)
+        this.timerAuto = setTimeout(() => {
+            const activeEl = document.querySelectorAll('.' + this.active.auto)
+            activeEl.forEach(el => {
+                el.classList.remove(this.active.auto)
+            })
+        }, this.data.auto)
     }　
 }
 
@@ -101,7 +113,12 @@ class base extends feature{
     }
     auto(){
         setInterval(() => {
-            this.next(this.el.showAll.id)
+            const activeEvent = this.el.show.classList.contains(this.active.event)
+            const activeAuto = this.el.show.classList.contains(this.active.auto)
+            if(!activeEvent && !activeAuto){
+                this.next(this.el.showAll.id)
+                console.log(this.el.show)
+            }
         }, this.data.auto)
     }
     flow(){
@@ -122,24 +139,13 @@ class base extends feature{
     }
     next(id){
         this.getNode(id)
-        let flag = this.el.show.classList.contains(this.is.stop) 
-        if(!flag){
-            this.control()
-            if(this.data.current == this.data.lastChild){
-                this.data.current = 1
-                this.el.show.dataset.showCurrent = this.data.current
-                this.el.slide.style.transitionDuration = '0ms'
-                this.el.slide.style.transform = 'translate3d(-' + this.slideW + 'px, 0, 0)'
-                setTimeout(() => {
-                    this.data.current++
-                    this.el.show.dataset.showCurrent = this.data.current
-                    this.el.slide.style.transitionDuration = this.data.speed + 'ms'
-                    this.el.slide.style.transform = 'translate3d(-' + this.slideW*this.data.current + 'px, 0, 0)'
-                    setTimeout(() => {
-                        this.el.slide.style.transitionDuration = '0ms'
-                    }, this.data.speed)
-                }, 100)
-            }else{
+        this.control()
+        if(this.data.current == this.data.lastChild){
+            this.data.current = 1
+            this.el.show.dataset.showCurrent = this.data.current
+            this.el.slide.style.transitionDuration = '0ms'
+            this.el.slide.style.transform = 'translate3d(-' + this.slideW + 'px, 0, 0)'
+            setTimeout(() => {
                 this.data.current++
                 this.el.show.dataset.showCurrent = this.data.current
                 this.el.slide.style.transitionDuration = this.data.speed + 'ms'
@@ -147,29 +153,26 @@ class base extends feature{
                 setTimeout(() => {
                     this.el.slide.style.transitionDuration = '0ms'
                 }, this.data.speed)
-            }
+            }, 100)
+        }else{
+            this.data.current++
+            this.el.show.dataset.showCurrent = this.data.current
+            this.el.slide.style.transitionDuration = this.data.speed + 'ms'
+            this.el.slide.style.transform = 'translate3d(-' + this.slideW*this.data.current + 'px, 0, 0)'
+            setTimeout(() => {
+                this.el.slide.style.transitionDuration = '0ms'
+            }, this.data.speed)
         }
     }
     prev(id){
-        this.getNode(id)
-        let flag = this.el.show.classList.contains(this.is.stop) 
-        if(!flag){
-            this.control()
-            if(this.data.current == 0){
-                this.data.current = this.data.lastChild-1
-                this.el.show.dataset.showCurrent = this.data.current
-                this.el.slide.style.transitionDuration = '0ms'
-                this.el.slide.style.transform = 'translate3d(-' + this.slideW*this.data.current + 'px, 0, 0)'
-                setTimeout(() => {
-                    this.data.current--
-                    this.el.show.dataset.showCurrent = this.data.current
-                    this.el.slide.style.transitionDuration = this.data.speed + 'ms'
-                    this.el.slide.style.transform = 'translate3d(-' + this.slideW*this.data.current + 'px, 0, 0)'
-                    setTimeout(() => {
-                        this.el.slide.style.transitionDuration = '0ms'
-                    }, this.data.speed)
-                }, 100)
-            }else{
+        this.getNode(id) 
+        this.control()
+        if(this.data.current == 0){
+            this.data.current = this.data.lastChild-1
+            this.el.show.dataset.showCurrent = this.data.current
+            this.el.slide.style.transitionDuration = '0ms'
+            this.el.slide.style.transform = 'translate3d(-' + this.slideW*this.data.current + 'px, 0, 0)'
+            setTimeout(() => {
                 this.data.current--
                 this.el.show.dataset.showCurrent = this.data.current
                 this.el.slide.style.transitionDuration = this.data.speed + 'ms'
@@ -177,7 +180,15 @@ class base extends feature{
                 setTimeout(() => {
                     this.el.slide.style.transitionDuration = '0ms'
                 }, this.data.speed)
-            }
+            }, 100)
+        }else{
+            this.data.current--
+            this.el.show.dataset.showCurrent = this.data.current
+            this.el.slide.style.transitionDuration = this.data.speed + 'ms'
+            this.el.slide.style.transform = 'translate3d(-' + this.slideW*this.data.current + 'px, 0, 0)'
+            setTimeout(() => {
+                this.el.slide.style.transitionDuration = '0ms'
+            }, this.data.speed)
         }
     }
 }
@@ -234,8 +245,11 @@ class app extends feature{
     next(){
         this.el.nextAll.forEach(el => {
             el.addEventListener('click', (e) => {
-                switch (this.data.form) {
-                    case this.form.base: this.base.next(e.target.dataset.showId); break;
+                const activeEvent = this.el.show.classList.contains(this.active.event)
+                if(!activeEvent){
+                    switch (this.data.form) {
+                        case this.form.base: this.base.next(e.target.dataset.showId); break;
+                    }
                 }
             })
         })
@@ -243,8 +257,11 @@ class app extends feature{
     prev(){
         this.el.prevAll.forEach(el => {
             el.addEventListener('click', (e) => {
-                switch (this.data.form) {
-                    case this.form.base: this.base.prev(e.target.dataset.showId); break;
+                const activeEvent = this.el.show.classList.contains(this.active.event)
+                if(!activeEvent){
+                    switch (this.data.form) {
+                        case this.form.base: this.base.prev(e.target.dataset.showId); break;
+                    }
                 }
             })
         })
