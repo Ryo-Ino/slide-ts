@@ -1,16 +1,16 @@
 extends _app
 
 block init
-    -var pageTitle = "show"; 
-    -var pageDesc = "";
-    -var pageName = "index";
-    -var pathImg = "/images/index/";
+    -const pageTitle = "show"; 
+    -const pageDesc = "";
+    -const pageName = "index";
+    -const pathImg = "/images/index/";
    
 block contents
 
     main(class=pageName)
     
-        .show#a(data-show-speed="300")(data-show-auto="3000")
+        .show(data-show-speed="300")(data-show-auto="3000")
             .show-track
                 ul.show-slide
                     li.show-slide__child
@@ -26,7 +26,7 @@ block contents
                 ul.show-nextprev
                 ul.show-pagination
         
-        .show#b(data-show-speed="300")(data-show-auto="3000")
+        .show(data-show-speed="300")(data-show-auto="3000")
             .show-track
                 ul.show-slide
                     li.show-slide__child
